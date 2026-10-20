@@ -23,16 +23,11 @@ ChatUs is a real-time 1-on-1 random chat application built for college and unive
   - Safe disconnect guard (*"Skip / End" -> "Press again"*).
   - Campus matchup banner & conversational icebreakers for student banter.
 
-- **🛡️ Cloudflare Turnstile Bot Protection**:
-  - Smart, frictionless bot protection embedded right in the onboarding form.
-  - Prevents automated bots and spammers from filling queues.
-
 ---
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 19, TypeScript, Vite
-- **Bot Protection**: Cloudflare Turnstile (`@marsidev/react-turnstile`)
 - **Real-time Backend**: Node.js, Express, Socket.io
 - **Process Orchestration**: Concurrently
 
@@ -43,20 +38,13 @@ ChatUs is a real-time 1-on-1 random chat application built for college and unive
 Create or update `.env` in the project root:
 
 ```env
-# Cloudflare Turnstile Site Key (From Cloudflare Dashboard > Turnstile)
-# For local development, '1x00000000000000000000AA' always passes
-VITE_CLOUDFLARE_TURNSTILE_SITE_KEY=your_cloudflare_site_key
-
-# Matchmaker Server URL
+# Matchmaker Server URL (localhost for dev, or your Render URL for production)
 VITE_SERVER_URL=http://localhost:3001
-
-# Optional: Cloudflare Secret Key for server-side token validation
-# CLOUDFLARE_TURNSTILE_SECRET_KEY=your_cloudflare_secret_key
 ```
 
 ---
 
-## 🏃 Running the Application
+## 🏃 Running Locally
 
 ### 1. Run Frontend and Backend Together (Recommended)
 ```bash
@@ -78,31 +66,19 @@ This boots:
 
 ---
 
-## 🌐 Deployment (Vercel / Netlify + Render)
+## 🌐 Deployment (Render + Vercel)
 
-1. **Deploy Backend to [Render.com](https://render.com/)**:
-   - New **Web Service** &rarr; Connect GitHub repo.
-   - Build Command: `npm install`
-   - Start Command: `npm run server`
-   - Copy your Render URL (e.g. `https://chatus-backend.onrender.com`).
+### 1. Deploy Backend to [Render.com](https://render.com/)
+1. Create a **New Web Service** &rarr; Connect this GitHub repo.
+2. Settings:
+   - **Language**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm run server`
+   - **Plan**: `Free`
+3. Copy your live Render URL (e.g., `https://chatus-backend.onrender.com`).
 
-2. **Deploy Frontend to [Vercel](https://vercel.com/) or [Netlify](https://netlify.com/)**:
-   - Import your repository.
-   - Add Environment Variables:
-     - `VITE_SERVER_URL`: `https://chatus-backend.onrender.com`
-     - `VITE_CLOUDFLARE_TURNSTILE_SITE_KEY`: Your Cloudflare Turnstile Site Key.
-   - Click **Deploy**.
-
-1. **Deploy Backend to [Render.com](https://render.com/)**:
-   - New **Web Service** &rarr; Connect GitHub repo.
-   - Build Command: `npm install`
-   - Start Command: `npm run server`
-   - Copy your Render URL (e.g. `https://chatus-backend.onrender.com`).
-
-2. **Deploy Frontend to [Vercel](https://vercel.com/) or [Netlify](https://netlify.com/)**:
-   - Import your repository.
-   - Add Environment Variables:
-     - `VITE_SERVER_URL`: `https://chatus-backend.onrender.com`
-     - `VITE_CLOUDFLARE_TURNSTILE_SITE_KEY`: Your Cloudflare Turnstile Site Key.
-   - Click **Deploy**.
-
+### 2. Deploy Frontend to [Vercel](https://vercel.com/)
+1. Import this repository into Vercel.
+2. In **Environment Variables**, add:
+   - `VITE_SERVER_URL`: `https://chatus-backend.onrender.com` *(your Render URL)*
+3. Click **Deploy**.

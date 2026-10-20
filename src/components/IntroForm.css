@@ -242,14 +242,6 @@
   font-weight: 700;
 }
 
-.turnstile-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 14px;
-  min-height: 65px;
-}
-
 .submit-button {
   width: 100%;
   margin-top: 14px;
