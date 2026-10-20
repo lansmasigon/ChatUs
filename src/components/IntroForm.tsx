@@ -1,3 +1,4 @@
+import { Turnstile } from '@marsidev/react-turnstile'
 import { POPULAR_PH_SCHOOLS, MATCH_PREFERENCES, type MatchPreference } from '../data/schools'
 import './IntroForm.css'
 
@@ -6,12 +7,14 @@ type IntroFormProps = {
   school: string
   matchPreference: MatchPreference
   accepted: boolean
+  turnstileToken: string | null
   previewName: string
   previewSchool: string
   onNameChange: (value: string) => void
   onSchoolChange: (value: string) => void
   onMatchPreferenceChange: (value: MatchPreference) => void
   onAcceptedChange: (value: boolean) => void
+  onTurnstileChange: (token: string | null) => void
   onSubmit: () => void
 }
 
@@ -20,12 +23,14 @@ function IntroForm({
   school,
   matchPreference,
   accepted,
+  turnstileToken,
   previewName,
   previewSchool,
   onNameChange,
   onSchoolChange,
   onMatchPreferenceChange,
   onAcceptedChange,
+  onTurnstileChange,
   onSubmit,
 }: IntroFormProps) {
   const quickSchools = [
@@ -37,6 +42,9 @@ function IntroForm({
     'FEU Manila',
     'Mapúa',
   ]
+
+  const turnstileSiteKey =
+    import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY || '0x4AAAAAAFds7_2tkkHLrDGS'
 
   return (
     <section className="intro-shell">
@@ -144,11 +152,25 @@ function IntroForm({
           </span>
         </label>
 
+        <div className="turnstile-wrap">
+          <Turnstile
+            siteKey={turnstileSiteKey}
+            onSuccess={(token) => onTurnstileChange(token)}
+            onExpire={() => onTurnstileChange(null)}
+            onError={() => onTurnstileChange(null)}
+            options={{
+              action: 'join_chat',
+              theme: 'light',
+              size: 'normal',
+            }}
+          />
+        </div>
+
         <button
           type="button"
           className="submit-button"
           onClick={onSubmit}
-          disabled={!name.trim() || !school.trim() || !accepted}
+          disabled={!name.trim() || !school.trim() || !accepted || !turnstileToken}
         >
           Find a Match &amp; Start Chatting <span aria-hidden="true">→</span>
         </button>

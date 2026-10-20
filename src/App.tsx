@@ -15,6 +15,7 @@ function App() {
   const [school, setSchool] = useState('')
   const [matchPreference, setMatchPreference] = useState<MatchPreference>('any')
   const [accepted, setAccepted] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
   // Real-time server state
   const [onlineCount, setOnlineCount] = useState(1)
@@ -69,6 +70,13 @@ function App() {
       setIsPartnerTyping(false)
     })
 
+    // 6. Queue error (e.g. Turnstile bot failure)
+    socket.on('queue_error', ({ message }: { message: string }) => {
+      alert(message || 'Verification failed. Please try again.')
+      setTurnstileToken(null)
+      setScreen('form')
+    })
+
     return () => {
       socket.off('online_count')
       socket.off('match_found')
@@ -76,12 +84,13 @@ function App() {
       socket.off('partner_typing')
       socket.off('partner_stop_typing')
       socket.off('partner_disconnected')
+      socket.off('queue_error')
     }
   }, [])
 
   // Join the queue to find a student
   const handleFindMatch = () => {
-    if (!name.trim() || !school.trim() || !accepted) return
+    if (!name.trim() || !school.trim() || !accepted || !turnstileToken) return
 
     setMessages([])
     setDraft('')
@@ -93,6 +102,7 @@ function App() {
       name: name.trim(),
       school: school.trim(),
       matchPreference,
+      turnstileToken,
     })
   }
 
@@ -196,12 +206,14 @@ function App() {
           school={school}
           matchPreference={matchPreference}
           accepted={accepted}
+          turnstileToken={turnstileToken}
           previewName={previewName}
           previewSchool={previewSchool}
           onNameChange={setName}
           onSchoolChange={setSchool}
           onMatchPreferenceChange={setMatchPreference}
           onAcceptedChange={setAccepted}
+          onTurnstileChange={setTurnstileToken}
           onSubmit={handleFindMatch}
         />
       )}

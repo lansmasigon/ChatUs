@@ -53,12 +53,88 @@ function broadcastOnlineCount() {
   io.emit('online_count', io.engine.clientsCount)
 }
 
+const expectedAction = 'join_chat'
+const expectedHostnames = new Set(
+  (process.env.TURNSTILE_HOSTNAMES ?? 'localhost,127.0.0.1')
+    .split(',')
+    .map((hostname) => hostname.trim())
+    .filter(Boolean),
+)
+
+async function verifyTurnstile(token, clientIp) {
+  const secret = process.env.TURNSTILE_SECRET || process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
+  if (!secret) return true
+
+  if (
+    typeof token !== 'string' ||
+    token.length === 0 ||
+    token.length > 2048 ||
+    expectedHostnames.size === 0
+  ) {
+    return false
+  }
+
+  try {
+    const formData = new URLSearchParams({
+      secret,
+      response: token,
+    })
+    if (clientIp) {
+      formData.append('remoteip', clientIp)
+    }
+
+    const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      signal: AbortSignal.timeout(10_000),
+      body: formData,
+    })
+
+    if (!r.ok) {
+      throw new Error(`siteverify ${r.status}`)
+    }
+
+    const result = await r.json()
+
+    if (
+      !result.success ||
+      result.action !== expectedAction ||
+      !expectedHostnames.has(result.hostname)
+    ) {
+      console.warn('[Turnstile Rejected]', {
+        success: result.success,
+        action: result.action,
+        hostname: result.hostname,
+        errorCodes: result['error-codes'],
+      })
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('[Turnstile Error]', error)
+    return false
+  }
+}
+
 io.on('connection', (socket) => {
   console.log(`[Socket Connected] ${socket.id}`)
   broadcastOnlineCount()
 
   // 1. Join matchmaking queue
-  socket.on('join_queue', ({ name, school, matchPreference }) => {
+  socket.on('join_queue', async ({ name, school, matchPreference, turnstileToken }) => {
+    // If secret key is configured, verify Cloudflare Turnstile token
+    const secret = process.env.TURNSTILE_SECRET || process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
+    if (secret) {
+      const clientIp = (socket.handshake.headers['x-forwarded-for'] || '').split(',')[0].trim() || socket.handshake.address
+      const isValid = await verifyTurnstile(turnstileToken, clientIp)
+      if (!isValid) {
+        console.warn(`[Bot Blocked] Socket ${socket.id} failed Turnstile challenge.`)
+        socket.emit('queue_error', { message: 'Cloudflare bot verification failed. Please try again.' })
+        return
+      }
+    }
+
     // If socket was already in an active chat, cleanly leave it first
     leaveCurrentChat(socket.id)
 
