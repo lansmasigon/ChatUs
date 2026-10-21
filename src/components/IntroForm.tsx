@@ -1,13 +1,16 @@
+import { POPULAR_PH_SCHOOLS, MATCH_PREFERENCES, type MatchPreference } from '../data/schools'
 import './IntroForm.css'
 
 type IntroFormProps = {
   name: string
   school: string
+  matchPreference: MatchPreference
   accepted: boolean
   previewName: string
   previewSchool: string
   onNameChange: (value: string) => void
   onSchoolChange: (value: string) => void
+  onMatchPreferenceChange: (value: MatchPreference) => void
   onAcceptedChange: (value: boolean) => void
   onSubmit: () => void
 }
@@ -15,22 +18,37 @@ type IntroFormProps = {
 function IntroForm({
   name,
   school,
+  matchPreference,
   accepted,
   previewName,
   previewSchool,
   onNameChange,
   onSchoolChange,
+  onMatchPreferenceChange,
   onAcceptedChange,
   onSubmit,
 }: IntroFormProps) {
+  const quickSchools = [
+    'UP Diliman',
+    'Ateneo de Manila',
+    'DLSU Manila',
+    'UST',
+    'PUP Manila',
+    'FEU Manila',
+    'Mapúa',
+  ]
+
   return (
     <section className="intro-shell">
       <div className="intro-card">
-        <h1>Introduce Yourself</h1>
+        <h1>Connect with PH Students</h1>
+        <p className="intro-tagline">
+          Random 1-on-1 chat for college &amp; university students across the Philippines.
+        </p>
 
         <div className="field-group">
           <label htmlFor="name" className="field-label">
-            <span>Your Name or Nickname</span>
+            <span>Your Name or Alias</span>
             <span className="asterisk">*</span>
           </label>
           <input
@@ -38,31 +56,75 @@ function IntroForm({
             type="text"
             value={name}
             onChange={(event) => onNameChange(event.target.value)}
-            placeholder="Enter your name"
+            placeholder="e.g. Isko, Archie, Tomasino, Lasallian..."
+            maxLength={30}
           />
         </div>
 
         <div className="field-group">
           <label htmlFor="school" className="field-label field-label-inline">
-            <span>School / University / College</span>
-            <span className="optional-chip">Optional</span>
+            <span>Your School / University</span>
+            <span className="asterisk">*</span>
           </label>
           <input
             id="school"
             type="text"
+            list="ph-schools-list"
             value={school}
             onChange={(event) => onSchoolChange(event.target.value)}
-            placeholder="Enter your school (optional)"
+            placeholder="Type or select your campus (e.g. UST, UP, DLSU...)"
           />
+          <datalist id="ph-schools-list">
+            {POPULAR_PH_SCHOOLS.map((s) => (
+              <option key={s.id} value={s.shortName}>
+                {s.name}
+              </option>
+            ))}
+          </datalist>
+
+          <div className="quick-schools-chips" aria-label="Popular campuses">
+            {quickSchools.map((qs) => (
+              <button
+                key={qs}
+                type="button"
+                className={`chip-button ${school === qs ? 'active' : ''}`}
+                onClick={() => onSchoolChange(qs)}
+              >
+                {qs}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="field-group">
+          <label className="field-label">
+            <span>Matching Preference</span>
+          </label>
+          <div className="preference-group">
+            {MATCH_PREFERENCES.map((pref) => {
+              const isSelected = matchPreference === pref.id
+              return (
+                <button
+                  key={pref.id}
+                  type="button"
+                  className={`preference-card ${isSelected ? 'active' : ''}`}
+                  onClick={() => onMatchPreferenceChange(pref.id)}
+                >
+                  <div className="preference-label">{pref.label}</div>
+                  <div className="preference-desc">{pref.description}</div>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div className="preview-wrap">
-          <div className="preview-label">PREVIEW:</div>
+          <div className="preview-label">LIVE STUDENT BADGE:</div>
           <div className="preview-box">
-            <div className="preview-avatar">D</div>
+            <div className="preview-avatar">{previewName.charAt(0).toUpperCase()}</div>
             <div className="preview-user-wrap">
               <div className="preview-user">{previewName}</div>
-              <div className="preview-school">{previewSchool}</div>
+              <div className="preview-school">🏫 {previewSchool}</div>
             </div>
           </div>
         </div>
@@ -74,12 +136,21 @@ function IntroForm({
             onChange={(event) => onAcceptedChange(event.target.checked)}
           />
           <span>
-            I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Community Guidelines</a>
+            I agree to keep chats respectful and follow the{' '}
+            <a href="#guidelines" onClick={(e) => e.preventDefault()}>
+              Community Guidelines
+            </a>
+            .
           </span>
         </label>
 
-        <button type="button" className="submit-button" onClick={onSubmit} disabled={!name.trim() || !accepted}>
-          Enter Chat &amp; Connect Randomly <span aria-hidden="true">→</span>
+        <button
+          type="button"
+          className="submit-button"
+          onClick={onSubmit}
+          disabled={!name.trim() || !school.trim() || !accepted}
+        >
+          Find a Match &amp; Start Chatting <span aria-hidden="true">→</span>
         </button>
       </div>
     </section>

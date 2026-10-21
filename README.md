@@ -1,75 +1,84 @@
-# React + TypeScript + Vite
+# ChatUs 🇵🇭 - Random Campus Chat for Students in the Philippines
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ChatUs is a real-time 1-on-1 random chat application built for college and university students across the Philippines. Students can pick or type their campus, set a display name/alias, and match with online peers based on their matching preference.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Features
 
-## React Compiler
+- **Philippine Universities & Colleges Directory**:
+  - Quick-select chips for major campuses (UP Diliman, Ateneo, DLSU Manila, UST, PUP, FEU, Mapúa).
+  - Searchable datalist covering top universities across Luzon, Visayas, and Mindanao.
+  - Custom input support for any regional college or school.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Matchmaking Preferences**:
+  - 🎲 **Anyone (Any School)**: Connect with any student currently online in the country.
+  - 🏫 **Same School**: Match exclusively with batchmates and students from your own campus.
+  - ⚔️ **Different School**: Meet peers from other colleges and universities.
 
-## Expanding the ESLint configuration
+- **Real-Time 1-on-1 Chat**:
+  - Live bidirectional messaging powered by **Socket.io**.
+  - Dynamic live online student counter.
+  - Typing indicators (*"Typing a message..."*).
+  - Safe disconnect guard (*"Skip / End" -> "Press again"*).
+  - Campus matchup banner & conversational icebreakers for student banter.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Frontend**: React 19, TypeScript, Vite
+- **Real-time Backend**: Node.js, Express, Socket.io
+- **Process Orchestration**: Concurrently
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
 
+## ⚙️ Environment Configuration
+
+Create or update `.env` in the project root:
+
+```env
+# Matchmaker Server URL (localhost for dev, or your Render URL for production)
+VITE_SERVER_URL=http://localhost:3001
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🏃 Running Locally
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+### 1. Run Frontend and Backend Together (Recommended)
+```bash
+npm run dev:all
 ```
+This boots:
+- **Matchmaking Server**: `http://localhost:3001`
+- **Vite Web Client**: `http://localhost:5173`
+
+### 2. Run Individually
+- Backend only:
+  ```bash
+  npm run server
+  ```
+- Frontend only:
+  ```bash
+  npm run dev
+  ```
+
+---
+
+## 🌐 Deployment (Render + Vercel)
+
+### 1. Deploy Backend to [Render.com](https://render.com/)
+1. Create a **New Web Service** &rarr; Connect this GitHub repo.
+2. Settings:
+   - **Language**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm run server`
+   - **Plan**: `Free`
+3. Copy your live Render URL (e.g., `https://chatus-backend.onrender.com`).
+
+### 2. Deploy Frontend to [Vercel](https://vercel.com/)
+1. Import this repository into Vercel.
+2. In **Environment Variables**, add:
+   - `VITE_SERVER_URL`: `https://chatus-backend.onrender.com` *(your Render URL)*
+3. Click **Deploy**.
